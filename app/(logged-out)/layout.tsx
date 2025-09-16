@@ -1,4 +1,4 @@
-import LightDarkToggle from "@/components/ui/light-dark-toggle";
+import LightDarkToggle from "@/Components/Atoms/light-dark-toggle";
 import React from "react";
 
 type Props = {
