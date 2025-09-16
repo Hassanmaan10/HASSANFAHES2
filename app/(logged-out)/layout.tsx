@@ -11,7 +11,7 @@ export default function LoggedOutLayout({ children }: Props) {
       <div className="flex gap-4 flex-col min-h-screen items-center p-24 justify-center">
         {children}
       </div>
-      <LightDarkToggle className="fixed right-0 top-1/2" />
+      <LightDarkToggle className="fixed right-0 top-2" />
     </>
   );
 }
