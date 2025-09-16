@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
   CardContent,
@@ -18,6 +19,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -25,7 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PersonStandingIcon } from "lucide-react";
+import { CalendarIcon, PersonStandingIcon } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -35,8 +41,8 @@ const formSchema = z
     email: z.string().email(),
     accountType: z.enum(["personal", "company"]),
     companyName: z.string().optional(),
-    numberOfEmployees: z.coerce.number().optional(),
-    dob: z.date().refine(() => {
+    numberOfEmployees: z.number().optional(),
+    dob: z.date().refine((date) => {
       const today = new Date();
       const eighteenYearsAgo = new Date(
         today.getFullYear() - 18,
@@ -45,8 +51,22 @@ const formSchema = z
       );
       return date <= eighteenYearsAgo;
     }, "You must be at least 18 years old"),
+    password: z
+      .string()
+      .min(8, "Password must contain at least 8 characters")
+      .refine((password) => {
+        return /^(?=.*[!@#$%^&*])(?=.*[A-Z]).*$/.test(password);
+      }, "Password must contain at least 1 special character and 1 uppercase letter"),
+    passwordConfirm: z.string(),
   })
   .superRefine((data, ctx) => {
+    if (data.password !== data.passwordConfirm) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["passwordConfirm"],
+        message: "Passwords don't match",
+      });
+    }
     if (data.accountType === "company" && !data.companyName) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -72,6 +92,8 @@ export default function SignupPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
+      password: "",
+      passwordConfirm: "",
     },
   });
 
@@ -169,6 +191,87 @@ export default function SignupPage() {
                   />
                 </>
               )}
+              <FormField
+                control={form.control}
+                name="dob"
+                render={({ field }) => {
+                  const dobFromDate = new Date();
+                  dobFromDate.setFullYear(dobFromDate.getFullYear() - 120);
+                  return (
+                    <FormItem className="flex flex-col pt-2">
+                      <FormLabel>Date of birth</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className="normal-case flex justify-between pr-0.5"
+                            >
+                              <span>Pick a date</span>
+                              <CalendarIcon />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            defaultMonth={field.value}
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            fixedWeeks
+                            weekStartsOn={1}
+                            startMonth={dobFromDate}
+                            captionLayout="dropdown"
+                            disabled={[
+                              {
+                                after: new Date(),
+                                before: dobFromDate,
+                              },
+                            ]}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="••••••••"
+                        type="password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="passwordConfirm"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="••••••••"
+                        type="password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <Button type="submit">Sign up</Button>
             </form>
           </Form>
