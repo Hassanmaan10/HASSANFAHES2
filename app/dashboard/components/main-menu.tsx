@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/Components/Atoms/avatar";
 import MenuItem from "./menu-item";
 import MenuTitle from "./menu-title";
 import Link from "next/link";
