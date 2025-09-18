@@ -4,7 +4,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/Components/Atoms/tabs";
-import EmployeesStats from "./components/employees-stats";
+import EmployeesStats from "./components/employees/employees-stats";
 
 export default function DashboardPage() {
   return (
