@@ -25,8 +25,11 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const formSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
+  email: z
+    .string()
+    .email({})
+    .nonempty({ message: "email should not be empty" }),
+  password: z.string().min(2, "Password too short"),
 });
 
 export default function LoginCard() {
